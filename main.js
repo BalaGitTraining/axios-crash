@@ -1,86 +1,159 @@
+// Import Axios library
+const axios = require('axios');
+
 // GET REQUEST
 function getTodos() {
-  console.log('GET Request');
+  axios.get('https://jsonplaceholder.typicode.com/todos')
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // POST REQUEST
 function addTodo() {
-  console.log('POST Request');
+  axios.post('https://jsonplaceholder.typicode.com/todos', {
+      title: 'New Todo',
+      completed: false
+    })
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // PUT/PATCH REQUEST
 function updateTodo() {
-  console.log('PUT/PATCH Request');
+  axios.put('https://jsonplaceholder.typicode.com/todos/1', {
+      title: 'Updated Todo',
+      completed: true
+    })
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // DELETE REQUEST
 function removeTodo() {
-  console.log('DELETE Request');
+  axios.delete('https://jsonplaceholder.typicode.com/todos/1')
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // SIMULTANEOUS DATA
 function getData() {
-  console.log('Simultaneous Request');
+  axios.all([
+      axios.get('https://jsonplaceholder.typicode.com/todos?_limit=5'),
+      axios.get('https://jsonplaceholder.typicode.com/posts?_limit=5')
+    ])
+    .then(axios.spread((todos, posts) => {
+      showOutput(todos);
+      showOutput(posts);
+    }))
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // CUSTOM HEADERS
 function customHeaders() {
-  console.log('Custom Headers');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer YourTokenHere'
+    }
+  };
+
+  axios.post('https://jsonplaceholder.typicode.com/todos', {
+      title: 'New Todo',
+      completed: false
+    }, config)
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // TRANSFORMING REQUESTS & RESPONSES
 function transformResponse() {
-  console.log('Transform Response');
+  const options = {
+    transformResponse: (data) => {
+      // Transform the response data
+      const parsedData = JSON.parse(data);
+      parsedData.newProperty = 'Transformed Data';
+      return JSON.stringify(parsedData);
+    }
+  };
+
+  axios.get('https://jsonplaceholder.typicode.com/todos/1', options)
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // ERROR HANDLING
 function errorHandling() {
-  console.log('Error Handling');
+  axios.get('https://jsonplaceholder.typicode.com/todoss')
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((error) => {
+      if (error.response) {
+        // Server responded with a status other than 200
+        console.error('Status:', error.response.status);
+        console.error('Data:', error.response.data);
+      } else if (error.request) {
+        // No response received, likely a network error
+        console.error('Request:', error.request);
+      } else {
+        // Something else went wrong
+        console.error('Error:', error.message);
+      }
+    });
 }
 
 // CANCEL TOKEN
 function cancelToken() {
-  console.log('Cancel Token');
+  const source = axios.CancelToken.source();
+
+  axios.get('https://jsonplaceholder.typicode.com/todos/1', {
+      cancelToken: source.token
+    })
+    .then((response) => {
+      showOutput(response);
+    })
+    .catch((thrown) => {
+      if (axios.isCancel(thrown)) {
+        console.log('Request canceled:', thrown.message);
+      } else {
+        console.error(thrown);
+      }
+    });
+
+  // Cancel the request (you can call this from elsewhere in your code)
+  source.cancel('Request canceled by user');
 }
-
-// INTERCEPTING REQUESTS & RESPONSES
-
-// AXIOS INSTANCES
 
 // Show output in browser
 function showOutput(res) {
-  document.getElementById('res').innerHTML = `
-  <div class="card card-body mb-4">
-    <h5>Status: ${res.status}</h5>
-  </div>
-
-  <div class="card mt-3">
-    <div class="card-header">
-      Headers
-    </div>
-    <div class="card-body">
-      <pre>${JSON.stringify(res.headers, null, 2)}</pre>
-    </div>
-  </div>
-
-  <div class="card mt-3">
-    <div class="card-header">
-      Data
-    </div>
-    <div class="card-body">
-      <pre>${JSON.stringify(res.data, null, 2)}</pre>
-    </div>
-  </div>
-
-  <div class="card mt-3">
-    <div class="card-header">
-      Config
-    </div>
-    <div class="card-body">
-      <pre>${JSON.stringify(res.config, null, 2)}</pre>
-    </div>
-  </div>
-`;
+  // Replace this with your logic to display the response in the browser
+  console.log(res);
 }
 
 // Event listeners
